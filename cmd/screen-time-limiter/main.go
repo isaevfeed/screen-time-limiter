@@ -8,20 +8,20 @@ import (
 	"os/signal"
 	"screen-time-limiter/cmd/screen-time-limiter/service_provider"
 	"screen-time-limiter/internal/app"
-	"screen-time-limiter/internal/config"
 	"syscall"
+
+	_ "github.com/lib/pq"
 )
 
 func main() {
-	cfg, err := config.Load(os.Getenv("CONFIG_FILE"))
-	if err != nil {
-		panic(err)
-	}
 	p := service_provider.New()
+	ctx := context.Background()
+	cfg := p.MustGetConfig()
 	log := p.GetLogger(cfg.Service.Env)
-	app := app.Init(
+	appInit := app.Init(
+		ctx,
 		cfg,
-		p.GetLogMiddleware(cfg.Service.Env),
+		p,
 	)
 
 	stop := make(chan os.Signal, 1)
@@ -30,8 +30,8 @@ func main() {
 	go func() {
 		log.Info(fmt.Sprintf("Server is started on %s:%s", cfg.Service.Host, cfg.Service.Port))
 
-		if err := app.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Error("app.ListenAndServe: ", err)
+		if err := appInit.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Error("app.ListenAndServe: ", "err", err)
 		}
 	}()
 
@@ -39,11 +39,11 @@ func main() {
 
 	log.Info("Shutting down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), cfg.Service.Timeout)
+	ctx, cancel := context.WithTimeout(ctx, cfg.Service.Timeout)
 	defer cancel()
 
-	if err := app.Shutdown(ctx); err != nil {
-		log.Error("app.Shutdown: ", err)
+	if err := appInit.Shutdown(ctx); err != nil {
+		log.Error("app.Shutdown: ", "err", err)
 	}
 
 	log.Info("Server stopped")

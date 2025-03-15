@@ -1,15 +1,26 @@
 version: '3.9'
 
 services:
-
-  db:
-    image: postgres
+  server:
+    build:
+      context: .
+      dockerfile: ./infra/docker/Dockerfile
+    ports:
+      - "8081:8081"
     restart: always
     environment:
-      POSTGRES_PASSWORD: root
+      CONFIG_FILE: /app/configs/values_local.yaml
 
-  adminer:
-    image: adminer
+  master:
+    image: postgres
     restart: always
     ports:
-      - 8082:8080
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - data:/var/lib/postgresql/data
+
+volumes:
+  data:
+    name: data
