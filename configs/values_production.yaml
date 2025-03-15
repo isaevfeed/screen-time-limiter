@@ -1,0 +1,5 @@
+service:
+  env: prod
+  host: localhost
+  port: 8081
+  timeout: 10s
