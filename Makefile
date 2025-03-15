@@ -1,2 +1,2 @@
 run:
-	CONFIG_FILE=/Users/mihailisaev/Documents/_git remote add origin git@gitlab.com:isaevdev/screen-time-limiter.gitprojects/screen-time-limiter/configs/values_local.yaml go run cmd/screen-time-limiter/main.go
+	CONFIG_FILE=/Users/mihailisaev/Documents/_projects/screen-time-limiter/configs/values_local.yaml go run cmd/screen-time-limiter/main.go
