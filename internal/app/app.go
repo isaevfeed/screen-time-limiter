@@ -13,9 +13,13 @@ type (
 		config *config.Config
 		server *http.Server
 	}
+
+	middleware interface {
+		ServeHTTP(next http.Handler) http.Handler
+	}
 )
 
-func Init(config *config.Config) *App {
+func Init(config *config.Config, logMiddleware middleware) *App {
 	app := &App{
 		config: config,
 		server: &http.Server{
@@ -23,7 +27,8 @@ func Init(config *config.Config) *App {
 		},
 	}
 
-	app.server.Handler = bootstrapHandlers()
+	logMid := logMiddleware.ServeHTTP(bootstrapHandlers())
+	app.server.Handler = logMid
 
 	return app
 }

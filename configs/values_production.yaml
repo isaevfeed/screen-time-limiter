@@ -3,3 +3,10 @@ service:
   host: localhost
   port: 8081
   timeout: 10s
+
+database:
+  host: postgres
+  port: 5432
+  username: postgres
+  password: root
+  database: master

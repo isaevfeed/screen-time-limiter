@@ -3,17 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"screen-time-limiter/cmd/screen-time-limiter/service_provider"
 	"screen-time-limiter/internal/app"
 	"screen-time-limiter/internal/config"
 	"syscall"
-)
-
-const (
-	prod = "prod"
 )
 
 func main() {
@@ -21,8 +17,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	app := app.Init(cfg)
-	log := initLogger(cfg.Service.Env)
+	p := service_provider.New()
+	log := p.GetLogger(cfg.Service.Env)
+	app := app.Init(
+		cfg,
+		p.GetLogMiddleware(cfg.Service.Env),
+	)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
@@ -47,13 +47,4 @@ func main() {
 	}
 
 	log.Info("Server stopped")
-}
-
-func initLogger(env string) *slog.Logger {
-	switch env {
-	case prod:
-		return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-	default:
-		return slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-	}
 }
