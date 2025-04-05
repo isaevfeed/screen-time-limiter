@@ -9,3 +9,7 @@ type Limit struct {
 func (l Limit) Expired(amount int32) bool {
 	return l.Amount <= amount
 }
+
+func (l Limit) ApplyBalance(sum int32) int32 {
+	return l.Amount - sum
+}

@@ -102,10 +102,9 @@ func (h *PushCurrentTimeHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		Data: responseDomain.PushCurrentTimeRespData{
 			Message:     "Текущее время учтено",
 			Expired:     limit.Expired(int32(historyTotalSum)),
-			TimeBalance: limit.Amount - int32(historyTotalSum),
+			TimeBalance: limit.ApplyBalance(int32(historyTotalSum)),
 		},
 	})
-	response.MakeResponse(w, http.StatusOK, "Текущее время учтено")
 }
 
 func validatePushCurrentTimeReq(req request.PushCurrentTime) *response.ValidationError {
