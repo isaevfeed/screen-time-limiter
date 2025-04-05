@@ -6,7 +6,8 @@ type (
 	}
 
 	PushCurrentTimeRespData struct {
-		Message string `json:"message"`
-		Expired bool   `json:"expired"`
+		Message     string `json:"message"`
+		Expired     bool   `json:"expired"`
+		TimeBalance int32  `json:"time_balance"`
 	}
 )

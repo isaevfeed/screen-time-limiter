@@ -92,7 +92,7 @@ func (h *PushCurrentTimeHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	sum, err := h.limitHistoryRepo.Sum(ctx, pushCurrentTimeReq.LimitID, now)
+	historyTotalSum, err := h.limitHistoryRepo.Sum(ctx, pushCurrentTimeReq.LimitID, now)
 	if err != nil {
 		response.MakeResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -100,8 +100,9 @@ func (h *PushCurrentTimeHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 	response.MakeRespWithData(w, http.StatusOK, responseDomain.PushCurrentTimeResp{
 		Data: responseDomain.PushCurrentTimeRespData{
-			Message: "Текущее время учтено",
-			Expired: limit.Expired(int32(sum)),
+			Message:     "Текущее время учтено",
+			Expired:     limit.Expired(int32(historyTotalSum)),
+			TimeBalance: limit.Amount - int32(historyTotalSum),
 		},
 	})
 	response.MakeResponse(w, http.StatusOK, "Текущее время учтено")
