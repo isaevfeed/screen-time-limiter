@@ -56,7 +56,7 @@ func (h *GetTotalHistoryTimesHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 	}
 
 	response.MakeRespWithData(w, http.StatusOK, responseDomain.GetTotalLimitTimesResp{
-		Sum:         sum,
+		Sum:         limit.Amount,
 		TimeBalance: limit.ApplyBalance(int32(sum)),
 		Expired:     limit.Expired(int32(sum)),
 	})
