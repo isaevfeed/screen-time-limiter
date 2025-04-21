@@ -14,6 +14,16 @@ type Config struct {
 		Port    string        `yaml:"port"`
 		Timeout time.Duration `yaml:"timeout"`
 	} `yaml:"service"`
+	Db     Database `yaml:"database"`
+	DbTest Database `yaml:"database-test"`
+}
+
+type Database struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+	Database string `yaml:"database"`
 }
 
 func Load(filePath string) (*Config, error) {

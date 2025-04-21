@@ -2,3 +2,5 @@ configs/values_local.yaml
 examples
 examples/*
 .idea
+data
+data/*

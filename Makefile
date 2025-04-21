@@ -1,13 +1,11 @@
-# Makefile
-
-# Переменные
 GO := go
 MINIMOCK := minimock
 MOCK_DIR := ./mocks
 SOURCE_DIR := ./internal
 GOOSE := goose
-MIGRATIONS_DIR := ./migrations
-DB_STRING := "user=youruser dbname=yourdb sslmode=disable password=yourpassword" # Замените на ваши параметры подключения к БД
+MIGRATIONS_DIR := ./scripts/migrations
+DB_STRING := "postgres://postgres:@localhost:5432/screen-time-limiter?sslmode=disable" # Замените на ваши параметры подключения к БД
+DB_STRING_TEST := "postgres://postgres:@localhost:5432/screen-time-limiter-test?sslmode=disable" # Замените на ваши параметры подключения к БД
 
 # Цель по умолчанию
 all: generate-mocks
@@ -17,8 +15,7 @@ generate-mocks:
 	@echo "Generating mocks..."
 	@$(GO) get github.com/gojuno/minimock/v3
 	@$(GO) install github.com/gojuno/minimock/v3/cmd/minimock@latest
-	@$(MINIMOCK) -i ./internal/service -o $(MOCK_DIR)/service
-	@$(MINIMOCK) -i ./internal/repository -o $(MOCK_DIR)/repository
+	@$(MINIMOCK) -i ./internal/app/handlers.* -o internal/app/handlers
 	@echo "Mocks generated successfully!"
 
 # Очистка сгенерированных моков
@@ -48,13 +45,23 @@ install-goose:
 # Применение миграций
 migrate-up: install-goose
 	@echo "Applying migrations..."
-	@$(GOOSE) -dir $(MIGRATIONS_DIR) postgres "$(DB_STRING)" up
+	@$(GOOSE) -dir $(MIGRATIONS_DIR) postgres $(DB_STRING) up
+	@echo "Migrations applied successfully!"
+
+migrate-up-test: install-goose
+	@echo "Applying migrations..."
+	@$(GOOSE) -dir $(MIGRATIONS_DIR) postgres $(DB_STRING_TEST) up
 	@echo "Migrations applied successfully!"
 
 # Откат миграций
 migrate-down: install-goose
 	@echo "Rolling back migrations..."
-	@$(GOOSE) -dir $(MIGRATIONS_DIR) postgres "$(DB_STRING)" down
+	@$(GOOSE) -dir $(MIGRATIONS_DIR) postgres $(DB_STRING) down
+	@echo "Migrations rolled back successfully!"
+
+migrate-down-test: install-goose
+	@echo "Rolling back migrations..."
+	@$(GOOSE) -dir $(MIGRATIONS_DIR) postgres $(DB_STRING_TEST) down
 	@echo "Migrations rolled back successfully!"
 
 # Создание новой миграции
@@ -66,4 +73,4 @@ create-migration: install-goose
 .PHONY: all generate-mocks clean-mocks test clean install-goose migrate-up migrate-down create-migration
 
 run:
-	CONFIG_FILE=/Users/mishaiisaev/Documents/_own_projects/screen-time-limiter/configs/values_production.yaml go run cmd/screen-time-limiter/main.go
+	CONFIG_FILE=/Users/mihailisaev/Documents/_projects/screen-time-limiter/configs/values_local.yaml go run cmd/screen-time-limiter/main.go
